@@ -27,7 +27,7 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-		String[] packages = (String[]) importingClassMetadata.getAnnotationAttributes("vic.sc.annotation.EnableWebComponent").get("scanPackage");
+		String[] packages = (String[]) importingClassMetadata.getAnnotationAttributes("vic.sc.annotation.EnableAOP").get("scanPackage");
 		Set<String> set = Sets.newHashSet();
 		for (String p: packages) {
 			String pkg = p.trim();
