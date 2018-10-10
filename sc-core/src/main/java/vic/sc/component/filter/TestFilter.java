@@ -12,23 +12,25 @@ import javax.servlet.ServletResponse;
 import vic.sc.annotation.WebComponent;
 import vic.sc.constant.WebComponentType;
 
-@WebComponent(type=WebComponentType.FILTER, urlPatterns="/login/*", asyncSupported=true, order=0)
-public class LoginFilter implements Filter {
+@WebComponent(type=WebComponentType.FILTER, urlPatterns="/test/*", asyncSupported=true, order=1)
+public class TestFilter implements Filter {
 
 	@Override
 	public void destroy() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2)
 			throws IOException, ServletException {
-		System.out.println("filter");
+		System.out.println("test filter");
 		arg2.doFilter(arg0, arg1);
 	}
 
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {
-		
+		// TODO Auto-generated method stub
 	}
 
 }

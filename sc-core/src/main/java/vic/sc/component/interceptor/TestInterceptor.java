@@ -8,13 +8,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import vic.sc.annotation.WebComponent;
 import vic.sc.constant.WebComponentType;
 
-@WebComponent(urlPatterns="/login/*", type = WebComponentType.INTERCEPTOR, order=0)
-public class LoginInterceptor implements HandlerInterceptor {
+@WebComponent(urlPatterns="/test/*", type = WebComponentType.INTERCEPTOR, order=10)
+public class TestInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		System.out.println("interceptor");
+		System.out.println("TestInterceptor");
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 	

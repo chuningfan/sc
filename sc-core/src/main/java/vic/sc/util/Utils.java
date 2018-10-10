@@ -1,12 +1,25 @@
 package vic.sc.util;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.Set;
+
+import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
+import com.google.common.collect.Lists;
 
 public class Utils {
 	
 	private static final String CLASS_EXTENSION = ".class";
+	
+	private static final String JAVA_EXTENSION = ".java";
 	
 	public static void scan(String basePath, String path, Set<Class<?>> set, Class<? extends Annotation> annotationClass) throws ClassNotFoundException {
 		if (path.trim().length() > 0) {
@@ -30,6 +43,9 @@ public class Utils {
 					}
 				} else {
 					String p = f.getAbsolutePath();
+					if (p.endsWith("/META-INF")) {
+						continue;
+					}
 					scan(basePath, p, set, annotationClass);
 				}
 			}
@@ -51,6 +67,32 @@ public class Utils {
 		String firstLetter = str.substring(0,1).toLowerCase();
 		String other = str.substring(1);
 		return firstLetter + other;
+	}
+	
+	public static boolean createClassDynamic(String source, String className, String filePath) throws IOException {
+		File tempDir = new File(filePath);
+		if (!tempDir.isDirectory()) {
+			throw new RuntimeException("Incorrect DIR");
+		}
+		if (!tempDir.exists()) {
+			tempDir.mkdirs();
+		}
+		String javaFileName = className + JAVA_EXTENSION;
+		File javaFile = new File(filePath + "/" + javaFileName);
+		if (javaFile.exists()) {
+			javaFile.delete();
+		}
+		javaFile.createNewFile();
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		try(FileWriter fw = new FileWriter(javaFile); 
+			StandardJavaFileManager manager = compiler.getStandardFileManager(null, null, null);) {
+			fw.write(source);
+			fw.flush();	
+			Iterable<? extends JavaFileObject> itr = manager.getJavaFileObjects(javaFile);
+			List<String> options = Lists.newArrayList("-d", filePath);
+			CompilationTask task = compiler.getTask(null, manager, null, options, null, itr);
+			return task.call();
+		}
 	}
 	
 }

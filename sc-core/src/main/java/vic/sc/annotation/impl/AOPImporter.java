@@ -1,30 +1,31 @@
 package vic.sc.annotation.impl;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Sets;
 
 import vic.sc.annotation.AOP;
-import vic.sc.annotation.api.AspectRunner;
 import vic.sc.annotation.api.AspectSupport;
+import vic.sc.pojo.DynamicClassDefinition;
 import vic.sc.util.Utils;
 
 public class AOPImporter implements ImportBeanDefinitionRegistrar {
 
+	private static final Logger LOG = LoggerFactory.getLogger(AOPImporter.class);
+	
+	private static final Set<Class<?>> aspectClasses = Sets.newHashSet();
+	
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		String[] packages = (String[]) importingClassMetadata.getAnnotationAttributes("vic.sc.annotation.EnableAOP").get("scanPackage");
@@ -53,40 +54,31 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 		if (!registrableClasses.isEmpty()) {
 			registrableClasses = filter(registrableClasses);
 			if (registrableClasses == null || registrableClasses.isEmpty()) {
-				throw new RuntimeException("All @AOP classes must implement vic.sc.annotation.api.AbstractAspectSupport");
+				LOG.info("No customized AOP classes");
+				return;
 			}
-			Class<AspectRunner> runnerClass = AspectRunner.class;
 			registrableClasses.stream().forEach(clazz -> {
 				try {
 					AOP aop = clazz.getAnnotation(AOP.class);
 					String expression = aop.expression();
-					String argNames = aop.argNames();
-					Method method = runnerClass.getDeclaredMethod("pointcut");
-					Pointcut p = method.getAnnotation(Pointcut.class);
-					InvocationHandler h = Proxy.getInvocationHandler(p);
-					Field f = h.getClass().getDeclaredField("memberValues");
-					f.setAccessible(true);
-					@SuppressWarnings("unchecked")
-					Map<String, Object> fMap = (Map<String, Object>) f.get(h);
-					fMap.put("value", expression);
-					if (!StringUtils.isEmpty(argNames.trim())) {
-						fMap.put("argNames", argNames);
-					}
-					BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(runnerClass);
-					builder.setScope("prototype");
-					builder.addPropertyValue("aspectSupport", clazz.newInstance());
-					registry.registerBeanDefinition(Utils.lowerCaseFirstLetter(runnerClass.getSimpleName() + "$" + System.nanoTime()), builder.getRawBeanDefinition());
-				} catch (NoSuchMethodException | SecurityException e) {
+					String dynamicClassName = clazz.getSimpleName() + "Aspect";
+					LOG.info("Created dynamic class " + dynamicClassName + " for customized AOP class " + clazz.getName());
+					Class<?> runnerClass = createRunnerClass(dynamicClassName, clazz.getName(), expression);
+					aspectClasses.add(runnerClass);
+				} catch (SecurityException e) {
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
-				} catch (IllegalAccessException e) {
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			});
+			aspectClasses.stream().forEach(a -> {
+				BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(a);
+				BeanDefinition df = builder.getBeanDefinition();
+				registry.registerBeanDefinition(Utils.lowerCaseFirstLetter(a.getSimpleName()), df);
 			});
 		}
 	}
@@ -96,5 +88,62 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 				filter(c -> Arrays.asList(c.getInterfaces()).contains(AspectSupport.class)).collect(Collectors.toSet());
 	}
 
+	
+	private synchronized Class<?> createRunnerClass(String className, String injection, String expression) throws ClassNotFoundException, IOException {
+		DynamicClassDefinition definition = new DynamicClassDefinition();
+		definition.setPkg("package vic.sc.annotation.impl");
+		String[] imports = new String[] {
+				"import org.springframework.stereotype.Component",
+				"import org.aspectj.lang.JoinPoint",
+				"import org.aspectj.lang.ProceedingJoinPoint",
+				"import org.aspectj.lang.annotation.After",
+				"import org.aspectj.lang.annotation.AfterReturning",
+				"import org.aspectj.lang.annotation.AfterThrowing",
+				"import org.aspectj.lang.annotation.Around",
+				"import org.aspectj.lang.annotation.Aspect",
+				"import org.aspectj.lang.annotation.Before",
+				"import org.aspectj.lang.annotation.Pointcut",
+				"import vic.sc.annotation.api.AspectSupport"
+		};
+		definition.setImports(imports);
+		String body = "@Aspect " + 
+				" public class " + className + " { " +
+				" private AspectSupport aspectSupport = new " + injection + "(); " +
+				" @Before(\"" + expression + "\")" + 
+				" public void doBefore(JoinPoint jp) { " + 
+				" aspectSupport.doBefore(jp); " +
+				" }" + 
+				" @After(\"" + expression + "\") " + 
+				" public void doAfter() { " + 
+				" aspectSupport.doAfter(); " +
+				" } " +
+				" @AfterReturning(value = \"" + expression + "\", returning = \"result\") " +
+				" public Object doAfterReturning(Object result) { " +
+				" return aspectSupport.doAfterReturning(result); " + 
+				" } " + 
+				" @Around(\"" + expression + "\") " + 
+				" public Object doAround(ProceedingJoinPoint pjp) { " +
+				" return aspectSupport.doAround(pjp); " +
+				" } " +
+				" @AfterThrowing(value=\"" + expression + "\",throwing=\"ex\") " +
+				" public void doAfterThrowing(JoinPoint joinPoint,Throwable ex) { " +
+				" aspectSupport.doAfterThrowing(joinPoint, ex); " +
+				" } " +
+				" public AspectSupport getAspectSupport() { " + 
+				" return aspectSupport; " +
+				" } " +
+				" public void setAspectSupport(AspectSupport aspectSupport) { " +
+				" this.aspectSupport = aspectSupport; " + 
+				" } " +
+				" } ";
+		definition.setBody(body);
+		String source = definition.toString();
+		String filePath = AOPImporter.class.getResource("/").toString().replaceFirst("file:", "");
+		if (Utils.createClassDynamic(source, className, filePath)) {
+			return Class.forName("vic.sc.annotation.impl." + className);
+		} else {
+			throw new RuntimeException("Failed to create a dynamic class");
+		}
+	}
 	
 }

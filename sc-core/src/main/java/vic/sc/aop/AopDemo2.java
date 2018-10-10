@@ -6,22 +6,21 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import vic.sc.annotation.AOP;
 import vic.sc.annotation.api.AspectSupport;
 
-@AOP(expression="execution(* vic.sc.controller.LoginController.*(..))")
-public class aopDemo implements AspectSupport {
+@AOP(expression="execution(* vic.sc.controller.TestController.*(..))")
+public class AopDemo2 implements AspectSupport {
 
 	@Override
 	public void doBefore(JoinPoint jp) {
-		System.out.println("before");
+		System.out.println("AopDemo2 before");
 	}
 
 	@Override
 	public void doAfter() {
-		System.out.println("after");
+		System.out.println("AopDemo2 after");
 	}
 
 	@Override
 	public Object doAfterReturning(Object result) {
-		// TODO Auto-generated method stub
 		return result;
 	}
 
