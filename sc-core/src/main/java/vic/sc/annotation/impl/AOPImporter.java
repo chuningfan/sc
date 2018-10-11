@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 import vic.sc.annotation.AOP;
 import vic.sc.annotation.api.AbstractAspectSupport;
 import vic.sc.annotation.api.AspectSupport;
-import vic.sc.pojo.DynamicClassDefinition;
+import vic.sc.annotation.dto.DynamicClassDefinition;
 import vic.sc.util.Utils;
 
 public class AOPImporter implements ImportBeanDefinitionRegistrar {
