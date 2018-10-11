@@ -16,6 +16,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import com.google.common.collect.Sets;
 
 import vic.sc.annotation.AOP;
+import vic.sc.annotation.api.AbstractAspectSupport;
 import vic.sc.annotation.api.AspectSupport;
 import vic.sc.pojo.DynamicClassDefinition;
 import vic.sc.util.Utils;
@@ -85,7 +86,7 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 	
 	private Set<Class<?>> filter(Set<Class<?>> registrableClasses) {
 		return registrableClasses = registrableClasses.stream().
-				filter(c -> Arrays.asList(c.getInterfaces()).contains(AspectSupport.class)).collect(Collectors.toSet());
+				filter(c -> c.getSuperclass() == AspectSupport.class || Arrays.asList(c.getInterfaces()).contains(AbstractAspectSupport.class)).collect(Collectors.toSet());
 	}
 
 	
@@ -103,12 +104,12 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 				"import org.aspectj.lang.annotation.Aspect",
 				"import org.aspectj.lang.annotation.Before",
 				"import org.aspectj.lang.annotation.Pointcut",
-				"import vic.sc.annotation.api.AspectSupport"
+				"import vic.sc.annotation.api.AbstractAspectSupport"
 		};
 		definition.setImports(imports);
 		String body = "@Aspect " + 
 				" public class " + className + " { " +
-				" private AspectSupport aspectSupport = new " + injection + "(); " +
+				" private AbstractAspectSupport aspectSupport = new " + injection + "(); " +
 				" @Before(\"" + expression + "\")" + 
 				" public void doBefore(JoinPoint jp) { " + 
 				" aspectSupport.doBefore(jp); " +
@@ -129,10 +130,10 @@ public class AOPImporter implements ImportBeanDefinitionRegistrar {
 				" public void doAfterThrowing(JoinPoint joinPoint,Throwable ex) { " +
 				" aspectSupport.doAfterThrowing(joinPoint, ex); " +
 				" } " +
-				" public AspectSupport getAspectSupport() { " + 
+				" public AbstractAspectSupport getAspectSupport() { " + 
 				" return aspectSupport; " +
 				" } " +
-				" public void setAspectSupport(AspectSupport aspectSupport) { " +
+				" public void setAspectSupport(AbstractAspectSupport aspectSupport) { " +
 				" this.aspectSupport = aspectSupport; " + 
 				" } " +
 				" } ";

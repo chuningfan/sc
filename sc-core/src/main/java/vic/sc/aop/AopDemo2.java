@@ -4,10 +4,10 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import vic.sc.annotation.AOP;
-import vic.sc.annotation.api.AspectSupport;
+import vic.sc.annotation.api.AbstractAspectSupport;
 
 @AOP(expression="execution(* vic.sc.controller.TestController.*(..))")
-public class AopDemo2 implements AspectSupport {
+public class AopDemo2 implements AbstractAspectSupport {
 
 	@Override
 	public void doBefore(JoinPoint jp) {

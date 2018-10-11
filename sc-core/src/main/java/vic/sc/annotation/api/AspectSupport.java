@@ -3,16 +3,31 @@ package vic.sc.annotation.api;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
-public interface AspectSupport {
+public abstract class AspectSupport implements AbstractAspectSupport {
 	
-	public abstract void doBefore(JoinPoint jp);
+	public void doBefore(JoinPoint jp) {
+		
+	}
 	
-	public abstract void doAfter();
+	public void doAfter() {
+		
+	}
 	
-	public abstract Object doAfterReturning(Object result);
+	public Object doAfterReturning(Object result) {
+		return result;
+	}
 	
-	public abstract Object doAround(ProceedingJoinPoint pjp);
+	public Object doAround(ProceedingJoinPoint pjp) {
+		try {
+			return pjp.proceed();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
-	public abstract void doAfterThrowing(JoinPoint joinPoint,Throwable ex);
+	public void doAfterThrowing(JoinPoint joinPoint,Throwable ex) {
+		
+	}
 	
 }
