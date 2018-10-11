@@ -1,4 +1,4 @@
-package vic.sc.component.servlet;
+package vic.sc.samples.annotation.servlet;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import vic.sc.annotation.WebComponent;
-import vic.sc.constant.WebComponentType;
+import vic.sc.annotation.constant.WebComponentType;
 
 @WebComponent(type=WebComponentType.SERVLET, order=0, asyncSupported=true, urlPatterns="/test.do", initParam = {"a=1"})
 public class LoginServlet extends HttpServlet {

@@ -1,4 +1,4 @@
-package vic.sc.util;
+package vic.sc.annotation.utils;
 
 import java.io.File;
 import java.io.FileWriter;

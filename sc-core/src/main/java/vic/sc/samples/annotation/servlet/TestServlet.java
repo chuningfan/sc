@@ -1,4 +1,4 @@
-package vic.sc.component.servlet;
+package vic.sc.samples.annotation.servlet;
 
 import java.io.IOException;
 

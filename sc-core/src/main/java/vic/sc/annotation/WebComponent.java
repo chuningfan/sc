@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import vic.sc.constant.WebComponentType;
+import vic.sc.annotation.constant.WebComponentType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

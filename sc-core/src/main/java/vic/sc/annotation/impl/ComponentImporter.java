@@ -25,8 +25,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import vic.sc.annotation.WebComponent;
-import vic.sc.constant.WebComponentType;
-import vic.sc.util.Utils;
+import vic.sc.annotation.constant.WebComponentType;
+import vic.sc.annotation.utils.Utils;
 
 public final class ComponentImporter implements ImportBeanDefinitionRegistrar {
 	

@@ -1,4 +1,4 @@
-package vic.sc.aop;
+package vic.sc.samples.annotation.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -6,7 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import vic.sc.annotation.AOP;
 import vic.sc.annotation.api.AbstractAspectSupport;
 
-@AOP(expression="execution(* vic.sc.controller.TestController.*(..))")
+@AOP(expression="execution(* vic.sc.samples.controller.TestController.*(..))")
 public class AopDemo2 implements AbstractAspectSupport {
 
 	@Override

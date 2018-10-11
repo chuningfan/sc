@@ -1,4 +1,4 @@
-package vic.sc.constant;
+package vic.sc.annotation.constant;
 
 public enum WebComponentType {
 	

@@ -1,4 +1,4 @@
-package vic.sc.component.filter;
+package vic.sc.samples.annotation.filter;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import vic.sc.annotation.WebComponent;
-import vic.sc.constant.WebComponentType;
+import vic.sc.annotation.constant.WebComponentType;
 
 @WebComponent(type=WebComponentType.FILTER, urlPatterns="/login/*", asyncSupported=true, order=0)
 public class LoginFilter implements Filter {

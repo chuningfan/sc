@@ -1,11 +1,11 @@
-package vic.sc.aop;
+package vic.sc.samples.annotation.aspect;
 
 import org.aspectj.lang.JoinPoint;
 
 import vic.sc.annotation.AOP;
 import vic.sc.annotation.api.AspectSupport;
 
-@AOP(expression="execution(* vic.sc.controller.LoginController.*(..))")
+@AOP(expression="execution(* vic.sc.samples.controller.LoginController.*(..))")
 public class aopDemo extends AspectSupport {
 
 	@Override

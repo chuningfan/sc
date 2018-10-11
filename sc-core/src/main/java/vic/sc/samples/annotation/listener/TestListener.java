@@ -1,10 +1,10 @@
-package vic.sc.component.listener;
+package vic.sc.samples.annotation.listener;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import vic.sc.annotation.WebComponent;
-import vic.sc.constant.WebComponentType;
+import vic.sc.annotation.constant.WebComponentType;
 
 @WebComponent(type=WebComponentType.LISTENER)
 public class TestListener implements ServletContextListener {
