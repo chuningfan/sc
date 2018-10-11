@@ -1,7 +1,6 @@
 package vic.sc.aop;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 
 import vic.sc.annotation.AOP;
 import vic.sc.annotation.api.AspectSupport;
